@@ -1,0 +1,117 @@
+  <!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <title>hwmap</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+        <style>
+            html, body, #mapid{
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id = 'mapid'>
+        </div>
+        <script>
+            var map = L.map('mapid').setView([37.5378, 127.0253], 11);
+            var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                attribution:'&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> Contributors'
+            }).addTo(map);
+            var GoogleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            })
+            var GoogleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            })
+            var GoogleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            })
+            var GoogleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            })
+            var Stamen_Watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
+                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                subdomains: 'abcd',
+                minZoom: 1,
+                maxZoom: 16,
+                ext: 'jpg'
+            });
+
+            var baseMaps = {
+                "GoogleStreetMap": GoogleStreets,
+                "GoogleSatelliteMap":GoogleSat,
+                "GoogleTerrain":GoogleTerrain,
+                "GoogleHybrid":GoogleHybrid,
+                "Watercolor":Stamen_Watercolor,
+                "OpenStreetMap":osm
+            };
+            
+            L.control.layers(baseMaps).addTo(map);
+  
+            var myIcon = L.Icon.extend({
+                options: {
+                shadowUrl: 'image/myicon_shadow.png',
+                iconSize:     [46, 60],
+                shadowSize:   [44, 22],
+                iconAnchor:   [23, 62],
+                shadowAnchor: [4, 22],
+                popupAnchor:  [0, -62]
+                }
+            });
+
+            var mishmashIcon = new myIcon({iconUrl: 'myicon_mishmash.png'});
+                mountainIcon = new myIcon({iconUrl: 'myicon_mountain.png'});
+                L.icon = function (options) {
+                    return new L.Icon(options);
+                };
+        
+            var part_1 = L.layerGroup();
+            var part_2 = L.layerGroup();  
+            
+            map.addLayer(part_1)
+            map.addLayer(part_2)
+
+
+            var overlays = {
+                "용수산": part_1,
+                "mishmash":part_2
+            };
+
+            var ctr_mapLayers = L.control.layers(null, overlays, {collapsed:false, position:'bottomleft'}).addTo(map);
+
+        
+            var geodata =[
+            {"type": "Feature", "properties": {"name": "용수산", "class": "Restaurant", "category": "용수산", "form": "point", "address": "null", "refurl": "https://instagram.com/yongsusan_biwon?igshid=YmMyMTA2M2Y="}, "geometry": {"type": "Point", "coordinates": [126.9891225, 37.57941493]}},
+{"type": "Feature", "properties": {"name": "mishmash", "class": "Restaurant", "category": "mishmash", "form": "point", "address": "null", "refurl": "https://www.instagram.com/mishmashkorea/"}, "geometry": {"type": "Point", "coordinates": [126.9891083, 37.57964789]}},
+{"type": "Feature", "properties": {"name": "용수산 삼청점", "class": "Restaurant", "category": "용수산", "form": "point", "address": "null", "refurl": "null"}, "geometry": {"type": "Point", "coordinates": [126.9815, 37.58611]}},
+{"type": "Feature", "properties": {"name": "용수산 아크로비스타점", "class": "Restaurant", "category": "용수산", "form": "point", "address": "null", "refurl": "https://instagram.com/yongsusan_acrovista?igshid=YmMyMTA2M2Y="}, "geometry": {"type": "Point", "coordinates": [127.01299, 37.4985]}},
+{"type": "Feature", "properties": {"name": "길운구락부", "class": "Restaurant", "category": "용수산", "form": "point", "address": "null", "refurl": "https://instagram.com/joyluck2019?igshid=YmMyMTA2M2Y="}, "geometry": {"type": "Point", "coordinates": [126.9815, 37.58611]}},
+{"type": "Feature", "properties": {"name": "개성철렵", "class": "Restaurant", "category": "용수산", "form": "point", "address": "null", "refurl": "https://instagram.com/for_ur_energy?igshid=YmMyMTA2M2Y="}, "geometry": {"type": "Point", "coordinates": [126.98199, 37.58635]}},
+
+];  
+
+            L.geoJson(geodata, {
+                onEachFeature: function (feature, layer) {
+                            layer.bindPopup('<a href="' + feature.properties.refurl + '" target="_blank"><center><big><b>' + "[" + feature.properties.class + "]" +" " + feature.properties.name + '</b></big></a><br/>' + feature.properties.address)},
+
+                pointToLayer: function(feature, latlng) { 
+                    switch (feature.properties.category) {
+                                case '용수산': return L.marker(latlng, {icon: mountainIcon}).addTo(part_1);
+                                case 'mishmash': return L.marker(latlng, {icon: mishmashIcon}).addTo(part_2);
+                        }
+                    }
+                });
+
+
+	    </script> 
+    </body>
+</html>
+
